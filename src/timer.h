@@ -52,21 +52,11 @@ public:
   }
 
   void clear_timeout(unsigned int timeout_id) {
-    for (auto it = this->timeouts.begin(); it != this->timeouts.end(); ++it) {
-      if (it->id == timeout_id) {
-        this->timeouts.erase(it);
-        break;
-      }
-    }
+    this->timeout_ids_to_remove.push_back(timeout_id);
   }
 
   void clear_interval(unsigned int interval_id) {
-    for (auto it = this->intervals.begin(); it != this->intervals.end(); ++it) {
-      if (it->id == interval_id) {
-        this->intervals.erase(it);
-        break;
-      }
-    }
+    this->interval_ids_to_remove.push_back(interval_id);
   }
 
   unsigned int set_interval_until(std::function<bool(void)> callback,
@@ -114,6 +104,36 @@ public:
       return;
     }
 
+    if (!this->interval_ids_to_remove.empty()) {
+      for (uint16_t i = 0; i < this->intervals.size(); i++) {
+        for (uint16_t j = 0; j < this->interval_ids_to_remove.size(); j++) {
+          if (this->intervals[i].id == this->interval_ids_to_remove[j]) {
+            this->intervals.erase(this->intervals.begin() + i);
+            this->interval_ids_to_remove.erase(
+                this->interval_ids_to_remove.begin() + j);
+            break;
+          }
+        }
+      }
+      this->interval_ids_to_remove.clear();
+      return;
+    }
+
+    if (!this->timeout_ids_to_remove.empty()) {
+      for (uint16_t i = 0; i < this->timeouts.size(); i++) {
+        for (uint16_t j = 0; j < this->timeout_ids_to_remove.size(); j++) {
+          if (this->timeouts[i].id == this->timeout_ids_to_remove[j]) {
+            this->timeouts.erase(this->timeouts.begin() + i);
+            this->timeout_ids_to_remove.erase(
+                this->timeout_ids_to_remove.begin() + j);
+            break;
+          }
+        }
+      }
+      this->timeout_ids_to_remove.clear();
+      return;
+    }
+
     for (std::size_t i = 0; i < this->timeouts.size(); i++) {
       if (this->now() < this->timeouts[i].next_call_time) {
         break;
@@ -158,6 +178,8 @@ private:
   };
 
   std::vector<Interval> intervals;
+  std::vector<unsigned int> interval_ids_to_remove;
+  std::vector<unsigned int> timeout_ids_to_remove;
 
   bool attached = false;
 };

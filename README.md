@@ -8,7 +8,7 @@ It supports timeouts, intervals, and timeout intervals.
 Add following line to "lib_deps" section in `platformio.ini`:
 
 ```
-uniuno/timer@^1.0.0
+uniuno/timer@^1.0.1
 ```
 
 so it should look like:
@@ -18,7 +18,7 @@ so it should look like:
 
 lib_deps =
 ; other deps...
-	uniuno/timer@^1.0.0
+	uniuno/timer@^1.0.1
 ```
 
 ## Usage
