@@ -143,7 +143,12 @@ public:
       this->timeouts.erase(this->timeouts.begin() + i);
     }
 
-    for (std::size_t i = 0; i < this->intervals.size(); i++) {
+    std::size_t starting_index =
+        this->last_called_interval_index + 1 < this->intervals.size()
+            ? this->last_called_interval_index + 1
+            : 0;
+
+    for (std::size_t i = starting_index; i < this->intervals.size(); i++) {
       if (this->now() < this->intervals[i].next_call_time) {
         continue;
       }
@@ -154,13 +159,19 @@ public:
         this->intervals[i].next_call_time =
             this->now() + this->intervals[i].interval_time;
       }
+
+      this->last_called_interval_index = i;
+      return;
     }
+
+    this->last_called_interval_index = 0;
   }
 
 private:
   std::function<unsigned long(void)> now;
 
   unsigned int index = 0;
+  std::size_t last_called_interval_index = 0;
 
   struct Timeout {
     unsigned int id;
