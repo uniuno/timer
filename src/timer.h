@@ -6,7 +6,7 @@
 #include <vector>
 
 #ifndef ARDUINO
-unsigned long millis() {
+static unsigned long millis() {
   return std::chrono::system_clock::now().time_since_epoch() /
          std::chrono::milliseconds(1);
 };
